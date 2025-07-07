@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings Listing[]
+  Booking  Booking[]
+  Review   Review[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  guest
+  host
+}
+
+enum ListingType {
+  entire
+  private
+  shared
+}
+
+model Listing {
+  id          String      @id @default(uuid())
+  title       String
+  description String
+  type        ListingType
+  location    String
+  country     String
+  price       Float
+  bedrooms    Int
+  bathrooms   Int
+  amenities   Amenity[] // list of features
+  ownerId     String
+  createdAt   DateTime    @default(now())
+
+  owner   User      @relation(fields: [ownerId], references: [id])
+  Room    Room[]
+  Booking Booking[]
+  Review  Review[]
+
+  @@map("listings")
+}
+
+model Amenity {
+  id        String  @id @default(uuid())
+  name      String
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  @@map("amenities")
+}
+
+model Room {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  capacity    Int
+  listingId   String
+  createdAt   DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@map("rooms")
+}
+
+model Booking {
+  id          String    @id @default(uuid())
+  listingId   String
+  guestId     String
+  checkIn     DateTime
+  checkOut    DateTime
+  totalPrice  Float
+  isBooked    Boolean
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  listing Listing  @relation(fields: [listingId], references: [id])
+  guest   User     @relation(fields: [guestId], references: [id])
+  Payment Payment?
+
+  @@map("bookings")
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  bookingId String        @unique
+  amount    Float
+  status    PaymentStatus @default(PENDING)
+  method    String
+  createdAt DateTime      @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  listingId String
+  guestId   String
+  rating    Int // 1 to 5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  guest   User    @relation(fields: [guestId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@unique([guestId, listingId]) // one review per guest per listing
+}
