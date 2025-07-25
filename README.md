@@ -1,6 +1,6 @@
-# HyperStay - Full-Stack Airbnb Clone
+# HyprStay - Full-Stack Airbnb Clone
 
-HyperStay is a modern, full-stack home booking application that replicates the core functionalities of platforms like Airbnb. It features a React-based frontend for a dynamic user experience and a robust Express.js backend for handling data, authentication, and business logic.
+HyprStay is a modern, full-stack home booking application that replicates the core functionalities of platforms like Airbnb. It features a React-based frontend for a dynamic user experience and a robust Express.js backend for handling data, authentication, and business logic.
 
 <br/>
 
